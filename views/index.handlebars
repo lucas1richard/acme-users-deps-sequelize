@@ -1,9 +1,78 @@
-<h1>Index</h1>
+<h1>ACME-Users-and-Departments-Sequelize</h1>
 <div class="row">
 <div class="col-md-6">
-  <h4>Departments</h4>
+  <h3>Departments</h3>
+  <form method="POST" action="/departments" class="form-group">
+    <p>
+      <input type="text" name="departmentName" class="form-control" placeholder="Add Department" />
+    </p>
+    <input type="submit" name="Add" class="btn btn-primary">
+  </form>
+  {{#if err.department}}
+  <div class="alert alert-danger">
+    <b>Error:</b>
+    <ul>
+    {{#each err.err}}
+      <li>{{this}}</li>
+    {{/each}}
+    </ul>
+  </div>
+  {{/if}}
+  {{#each allDepartments}}
+  <div class="well">
+    <form action="/departments?_method=DELETE" method="POST" class="pull-right">
+      <input type="hidden" value="{{id}}" name="departmentId" />
+      <button class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-remove-sign text-lg"></span></button>
+    </form>
+    {{name}}
+  </div>
+  {{/each}}
 </div>
 <div class="col-md-6">
-  <h4>Users</h4>
+  <h3>Users</h3>
+  <form method="POST" action="/users" class="form-group">
+    <p>
+      <input type="text" name="userName" class="form-control" placeholder="Add User" />
+    </p>
+    <input type="submit" name="Add" class="btn btn-primary">
+  </form>
+  {{#if err.user}}
+    <div class="alert alert-danger">
+      <b>Error:</b>
+      <ul>
+      {{#each err.err}}
+        <li>{{this}}</li>
+      {{/each}}
+      </ul>
+    </div>
+  {{/if}}
+  {{#each employees}}
+  {{#if allDepartments}}
+    <div class="well" style="background-color: #ffcc00">
+    {{else if noDepartments}}
+      <div class="well" style="background-color: #f2f2f2">
+    {{else}}
+      <div class="well" style="background-color: #fff">
+  {{/if}}
+    <form action="/users?_method=DELETE" method="POST" class="pull-right">
+      <input type="hidden" value="{{id}}" name="userId" />
+      <button class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-remove-sign text-lg"></span></button>
+    </form>
+    <p>
+      {{name}}
+    </p>
+      {{#each departments}}
+        {{#if notAssigned}}
+          <form method="post" action="/users/{{../id}}/user_departments/{{id}}" style="display: inline-block">
+            <input type="submit" style="text-decoration: line-through" class="btn btn-warning" value="{{name}}" />
+          </form>
+          {{else}}
+          <form method="post" action="/users/{{../id}}/user_departments/{{id}}?_method=DELETE" style="display: inline-block">
+            <input type="submit" class="btn btn-default" value="{{name}}" />
+          </form>
+        {{/if}}
+      {{/each}}
+  </div>
+  {{/each}}
 </div>
 </div>

@@ -1,29 +1,50 @@
-const { Sequelize, db } = require('./db');
+const sequelize = require('./db');
 
-const User = require('./user')(Sequelize, db);
-const Department = require('./department')(Sequelize, db);
+const seed = process.env.SEED || false;
+const seedConfig = seed ? { force:true } : {};
 
-const UserDepartments = db.define('user_departments', {});
+const Employee = sequelize.import('./employee');
+const Department = sequelize.import('./department');
+const chalk = require('chalk');
 
-User.belongsToMany(Department, { through: UserDepartments, foreignKey: 'user_id' });
-Department.belongsToMany(User, { through: UserDepartments, foreignKey: 'department_id' });
+Employee.belongsToMany(Department, { through: 'user_departments', foreignKey: 'user_id' });
+Department.belongsToMany(Employee, { through: 'user_departments', foreignKey: 'department_id' });
 
+sequelize.sync(seedConfig).then(() => {
+  if (seed) {
 
-db.sync({ force: true }).then(() => {
-  User.bulkCreate([{ name: 'Prof' }, { name: 'Mitch' }])
-  .then(() => Department.bulkCreate([{ name: 'IT'}, { name: 'HR' }, { name: 'Executive' }]))
-  .then(() => UserDepartments.bulkCreate([
-    { user_id: 1, department_id: 1 },
-    { user_id: 2, department_id: 2 },
-    { user_id: 1, department_id: 3 },
-   ]))
-  .then(() => {
-    console.log('Database Synced');
-  });
+    const startTime = new Date();
+    console.log(chalk.magenta.bold('Syncing the database'));
+
+    let departments;
+    console.log(chalk.blue(' - Seeding employees table'));
+    Employee.bulkCreate([{ name: 'Prof' }, { name: 'Mitch' }])
+    .then(() => {
+
+      console.log(chalk.blue(' - Seeding departments table'));
+      return Department.bulkCreate([{ name: 'IT'}, { name: 'HR' }, { name: 'Executive' }]);
+
+    })
+    .then(() => Department.findAll({}))
+    .then(_departments => {
+
+      departments = _departments;
+      return Employee.findAll({});
+
+    })
+    .then(employees => {
+
+      console.log(chalk.blue(' - Adding departments to employees'));
+      console.log('----------------------------------');
+      return employees[0].addDepartments([departments[0], departments[2]]);
+    })
+    .then(() => {
+
+      const totalTime = (new Date() - startTime) / 1000;
+      console.log(chalk.yellow('Database Seeded') + ' ' + chalk.dim(`(${totalTime} seconds)`));
+
+    });
+  }
 });
 
-module.exports = {
-  db,
-  User,
-  Department
-};
+module.exports = sequelize;
