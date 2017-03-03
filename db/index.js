@@ -3,7 +3,7 @@ const sequelize = require('./db');
 const seed = process.env.SEED || false;
 const seedConfig = seed ? { force:true } : {};
 
-const Employee = sequelize.import('./employee');
+const Employee = sequelize.import('./employee');//cool!
 const Department = sequelize.import('./department');
 const chalk = require('chalk');
 

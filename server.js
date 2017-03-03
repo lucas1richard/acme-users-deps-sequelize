@@ -24,6 +24,9 @@ const db = require('./db');
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(chalk.yellow.bold(`Server is listening on port ${port}`)));
 
+/* you know what I'm going to say-- too much logic in the route! :)
+ * put it somewhere else-- the model.. anywhere-- but not in the routes */
+
 app.get('/', (req, res) => {
   let allDepartments, employees;
   db.models.departments.findAll({}) // Get all departments for use later

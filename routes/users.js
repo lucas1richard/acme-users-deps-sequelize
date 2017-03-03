@@ -1,13 +1,14 @@
 const router = require('express').Router();
 
+//again not sure about passing db in here.
 module.exports = function(db) {
   router.post('/', (req, res) => {
-    const userName = req.body.userName;
-    db.models.employees.findOrCreate({ where: { name: userName } })
-    .then(() => res.redirect('/'))
-    .catch(err => {
-      res.redirect(`/?err=${err.errors.map(err => err.message.toString())}&user=true`);
-    });
+    const name = req.body.userName;
+    db.models.employees.findOrCreate({ where: { name: name } })
+      .then(() => res.redirect('/'))
+      .catch(err => {
+        res.redirect(`/?err=${err.errors.map(err => err.message.toString())}&user=true`);
+      });
   });
 
   router.post('/:userId/user_departments/:departmentId', (req, res) => {
